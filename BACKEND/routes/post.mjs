@@ -5,18 +5,26 @@ import checkauth from "../check-auth.mjs";
 
 const router = express.Router();
 
-// Get all the transactions for a user.
 router.get("/transactions", checkauth, async (req, res) => {
     try {
+        // Log the authenticated user
+        console.log("Authenticated user:", req.user);
+
         const collection = await db.collection("posts");
         const query = { user: req.user.username };
+
+        // Log the query being made
+        console.log("Querying transactions for user:", req.user.username);
+
         const results = await collection.find(query).toArray();
-        res.send(results).status(200);
+        res.status(200).json(results);
     } catch (error) {
-        console.error("Error fetching transactions:", error);
+        console.error("Error fetching transactions:", error.message);
+        console.error(error.stack);  // This will log the stack trace
         res.status(500).json({ error: "Failed to fetch transactions." });
     }
 });
+
 
 // Create a new transaction.
 router.post("/upload", checkauth, async (req, res) => {
